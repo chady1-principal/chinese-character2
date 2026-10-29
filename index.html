@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매일 하루 하나 사자성어</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+        }
+        .hanja-font {
+            font-family: 'Gowun Batang', '궁서', 'Gungsuh', 'Batang', serif;
+            font-weight: 700;
+            /* 텍스트에 미세한 두께감(스트로크)을 더해 더욱 굵고 뚜렷하게 보이도록 설정 */
+            -webkit-text-stroke: 0.5px currentColor;
+            paint-order: stroke fill;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-amber-50/50 text-stone-800 min-h-screen flex flex-col justify-between">
+
+    <!-- 상단 헤더 -->
+    <header class="bg-amber-900 text-amber-50 shadow-md py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-2xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-book-bookmark text-2xl text-amber-300"></i>
+                <h1 class="text-xl font-bold tracking-tight">일일 사자성어 도루묵</h1>
+            </div>
+            <div id="current-date" class="text-sm bg-amber-800 px-3 py-1 rounded-full text-amber-200">
+                2026년 10월 29일
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="max-w-2xl w-full mx-auto p-4 sm:p-6 my-auto">
+
+        <!-- 로딩 인디케이터 -->
+        <div id="loading-spinner" class="hidden flex-col items-center justify-center py-16 bg-white rounded-3xl shadow-xl border border-amber-100 mb-6">
+            <i class="fa-solid fa-spinner fa-spin text-4xl text-amber-700 mb-4"></i>
+            <p class="text-stone-600 font-medium text-sm">인터넷에서 새로운 사자성어와 유래를 불러오는 중입니다...</p>
+        </div>
+
+        <!-- 메인 카드 -->
+        <div id="card-container" class="bg-white rounded-3xl shadow-xl border border-amber-100 p-6 sm:p-8 transition-all duration-300 animate-fade-in relative overflow-hidden">
+            
+            <!-- 상단 뱃지 및 즐겨찾기 -->
+            <div class="flex justify-between items-center mb-6">
+                <span id="card-index" class="text-xs font-semibold uppercase tracking-wider bg-amber-100 text-amber-800 px-3 py-1 rounded-full">
+                    DAY 1
+                </span>
+                <button onclick="toggleBookmark()" id="bookmark-btn" class="text-stone-300 hover:text-amber-500 text-xl transition-colors">
+                    <i class="fa-solid fa-bookmark"></i>
+                </button>
+            </div>
+
+            <!-- 사자성어 타이틀 (한자) -->
+            <div class="text-center mb-6">
+                <h2 id="saja-hanja" class="hanja-font text-5xl sm:text-6xl font-bold tracking-widest text-stone-900 mb-2">
+                    破釜沉舟
+                </h2>
+                <p id="saja-hangul" class="text-lg font-semibold text-amber-700">파부침주</p>
+                <p id="saja-mean-summary" class="text-stone-600 text-sm mt-1">"솥을 깨뜨리고 배를 가라앉힌다"</p>
+            </div>
+
+            <!-- 한자 단어별 뜯어보기 -->
+            <div class="mb-8 bg-amber-50/60 rounded-2xl p-4 border border-amber-200/50">
+                <h3 class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-3 flex items-center">
+                    <i class="fa-solid fa-puzzle-piece mr-2"></i> 한자 풀이
+                </h3>
+                <div id="hanja-breakdown" class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <!-- JS 동적 생성 -->
+                </div>
+            </div>
+
+            <!-- 뜻 및 유래 설명 탭 -->
+            <div class="space-y-6">
+                <!-- 전체 뜻 -->
+                <div>
+                    <h3 class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">전체 뜻</h3>
+                    <p id="saja-definition" class="text-stone-800 font-medium leading-relaxed bg-stone-50 p-4 rounded-xl border border-stone-100">
+                        솥을 깨뜨리고 타고 온 배를 가라앉힌다는 뜻으로, 살아서 돌아오기를 바라지 않고 결사적으로 싸우겠다는 굳은 각오를 이르는 말.
+                    </p>
+                </div>
+
+                <!-- 유래 -->
+                <div>
+                    <h3 class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">유래 및 배경</h3>
+                    <p id="saja-origin" class="text-stone-700 text-sm leading-relaxed bg-stone-50 p-4 rounded-xl border border-stone-100">
+                        중국 진나라 말기, 항우가 진나라 군대와 싸우기 위해 장강을 건넌 뒤 타고 온 배를 모두 가라앉히고 밥을 짓는 솥을 깨뜨려버렸습니다. 단 3일 치 식량만 가지고 돌아갈 퇴로를 완전히 차단한 채 결연한 의지로 승리를 이끌어낸 고사에서 유래했습니다.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 네비게이션 컨트롤 -->
+        <div class="flex justify-between items-center mt-6">
+            <button onclick="prevCard()" class="bg-white hover:bg-amber-100 text-stone-700 font-semibold px-5 py-3 rounded-2xl shadow-sm border border-stone-200 transition-all flex items-center">
+                <i class="fa-solid fa-arrow-left mr-2"></i> 이전 성어
+            </button>
+            <button onclick="fetchNewIdiom()" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-5 py-3 rounded-2xl shadow-md transition-all flex items-center">
+                <i class="fa-solid fa-cloud-arrow-down mr-2"></i> 새로운 성어 검색
+            </button>
+            <button onclick="nextCard()" class="bg-white hover:bg-amber-100 text-stone-700 font-semibold px-5 py-3 rounded-2xl shadow-sm border border-stone-200 transition-all flex items-center">
+                다음 성어 <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- 하단 보조 메뉴 (즐겨찾기 및 전체 일정 미리보기) -->
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+            <button onclick="openModal()" class="text-xs font-medium text-amber-800 hover:underline bg-amber-100 px-4 py-2 rounded-full inline-flex items-center">
+                <i class="fa-solid fa-bookmark mr-1.5 text-amber-600"></i> 내가 저장한 성어 (<span id="bookmark-count">0</span>)
+            </button>
+            <button onclick="openScheduleModal()" class="text-xs font-medium text-amber-800 hover:underline bg-amber-200/80 px-4 py-2 rounded-full inline-flex items-center">
+                <i class="fa-solid fa-calendar-days mr-1.5 text-amber-700"></i> 전체 학습 일정 미리보기
+            </button>
+        </div>
+
+    </main>
+
+    <!-- 즐겨찾기 모달 -->
+    <div id="modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden justify-center items-center p-4 z-50">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-stone-100">
+                <h3 class="font-bold text-lg text-stone-800"><i class="fa-solid fa-bookmark text-amber-600 mr-2"></i> 보관함</h3>
+                <button onclick="closeModal()" class="text-stone-400 hover:text-stone-700 text-xl font-bold">&times;</button>
+            </div>
+            <div id="bookmark-list" class="overflow-y-auto space-y-3 flex-1 pr-1">
+                <!-- 북마크 아이템이 동적으로 들어감 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 전체 학습 일정 미리보기 모달 -->
+    <div id="schedule-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden justify-center items-center p-4 z-50">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-stone-100">
+                <h3 class="font-bold text-lg text-stone-800"><i class="fa-solid fa-calendar-days text-amber-700 mr-2"></i> 일일 학습 일정 및 미리보기</h3>
+                <button onclick="closeScheduleModal()" class="text-stone-400 hover:text-stone-700 text-xl font-bold">&times;</button>
+            </div>
+            <p class="text-xs text-stone-500 mb-3">지금까지 불러온 사자성어 목록입니다. 언제든 새로운 성어를 계속 추가하여 늘릴 수 있습니다.</p>
+            <div id="schedule-list" class="overflow-y-auto space-y-3 flex-1 pr-1">
+                <!-- 전체 일정 리스트 동적 생성 -->
+            </div>
+            <div class="mt-4 pt-3 border-t border-stone-100 text-center">
+                <button onclick="closeScheduleModal(); fetchNewIdiom();" class="w-full bg-amber-700 text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-amber-800 transition">
+                    <i class="fa-solid fa-plus mr-1"></i> 새로운 성어 인터넷에서 불러오기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="text-center py-6 text-xs text-stone-400">
+        &copy; 2026 Daily Sajaseongeo. 하루 하나씩 지혜를 쌓아보세요.
+    </footer>
+
+    <script>
+        // 초기 기본 사자성어 데이터베이스 (로컬 스토리지에 저장되어 관리됨)
+        const defaultIdioms = [
+            {
+                hanja: "破釜沉舟",
+                hangul: "파부침주",
+                summary: "솥을 깨뜨리고 배를 가라앉힌다",
+                definition: "솥을 깨뜨리고 타고 온 배를 가라앉힌다는 뜻으로, 살아서 돌아오기를 바라지 않고 결사적으로 싸우겠다는 굳은 각오를 이르는 말.",
+                origin: "중국 진나라 말기, 항우가 진나라 군대와 싸우기 위해 장강을 건넌 뒤 타고 온 배를 모두 가라앉히고 밥을 짓는 솥을 깨뜨려버렸습니다. 단 3일 치 식량만 가지고 돌아갈 퇴로를 완전히 차단한 채 결연한 의지로 승리를 이끌어낸 고사에서 유래했습니다.",
+                chars: [
+                    { h: "破", sound: "파", meaning: "깨뜨릴 파" },
+                    { h: "釜", sound: "부", meaning: "솥 부" },
+                    { h: "沉", sound: "침", meaning: "잠길 침" },
+                    { h: "舟", sound: "주", meaning: "배 주" }
+                ]
+            },
+            {
+                hanja: "刻舟求劍",
+                hangul: "각주구검",
+                summary: "배를 새겨 칼을 찾는다",
+                definition: "배를 뱃전에 새기고 떨어뜨린 칼을 찾으려 한다는 뜻으로, 융통성이 없이 꽉 막혀 세상 일이 변하는 것을 모르는 어리석음을 이르는 말.",
+                origin: "초나라 사람이 강을 건너다 칼을 물에 빠뜨리자 뱃전에 칼이 빠진 자리를 칼로 새겨 두었습니다. 그리고 배가 멈춘 곳에서 칼을 찾으려 했으니, 물에 빠진 칼은 가만히 있는데 배는 이미 멀리 나아갔으므로 칼을 찾을 수 없다는 《위서(呂氏春秋)》의 이야기에서 유래했습니다.",
+                chars: [
+                    { h: "刻", sound: "각", meaning: "새길 각" },
+                    { h: "舟", sound: "주", meaning: "배 주" },
+                    { h: "求", sound: "구", meaning: "구할 구" },
+                    { h: "劍", sound: "검", meaning: "칼 검" }
+                ]
+            },
+            {
+                hanja: "畵龍點睛",
+                hangul: "화룡점정",
+                summary: "용을 그려 넣고 눈동자를 찍다",
+                definition: "그림을 그리고 나서 마지막에 눈동자를 그려 넣었다는 뜻으로, 가장 중요한 부분을 완성하여 전체를 돋보이게 함을 이르는 말.",
+                origin: "중국 양나라의 화가 장승요가 안람사라는 절 벽에 네 마리의 용을 그렸으나 눈동자는 그리 안했습니다. 사람들이 이유를 묻자 눈을 그리면 용이 날아가 버릴 것이라 했습니다. 사람들이 믿지 않아 두 마리에 눈을 그려 넣자 갑자기 우뢰가 치며 용이 벽을 찢고 하늘로 날아갔고 눈을 안 그린 두 마리만 남았다는 일화에서 유래했습니다.",
+                chars: [
+                    { h: "畵", sound: "화", meaning: "그릴 화" },
+                    { h: "龍", sound: "용", meaning: "용 룡" },
+                    { h: "點", sound: "점", meaning: "점칠 점" },
+                    { h: "睛", sound: "정", meaning: "눈동자 정" }
+                ]
+            },
+            {
+                hanja: "大器晩成",
+                hangul: "대기만성",
+                summary: "큰 그릇은 늦게 이루어진다",
+                definition: "귀중한 물건이나 큰 인물은 하루아침에 이루어지는 것이 아니라 오랜 노력과 시련을 거쳐 늦게 완성됨을 이르는 말.",
+                origin: "노자의 《도덕경》에 나오는 말로, “큰 그릇은 늦게 이루어지고, 큰 소리는 소리가 희박하며, 큰 형상은 모양이 없다(大器晚成, 大音希聲, 大象無形)”에서 유래했습니다. 크게 될 사람은 조급하게 서두르지 않고 꾸준히 내실을 다져 훗날 큰 뜻을 이룬다는 의미를 담고 있습니다.",
+                chars: [
+                    { h: "大", sound: "대", meaning: "클 대" },
+                    { h: "器", sound: "기", meaning: "그릇 기" },
+                    { h: "晩", sound: "만", meaning: "늦을 만" },
+                    { h: "成", sound: "성", meaning: "이룰 성" }
+                ]
+            },
+            {
+                hanja: "馬耳東風",
+                hangul: "마이동풍",
+                summary: "말의 귀에 동쪽 바람",
+                definition: "말의 귀에 부는 동쪽 바람이라는 뜻으로, 남의 비판이나 충고를 전혀 귀담아듣지 않고 흘려버림을 이르는 말.",
+                origin: "당나라의 시인 백거이가 친구인 시인 왕참을 위해 지은 시에서 유래했습니다. 세상의 명예나 비난 따위는 자신과 상관없다는 듯 바람이 말의 귀를 스쳐 지나가듯 흘려버린다는 비유에서 비롯되었습니다.",
+                chars: [
+                    { h: "馬", sound: "마", meaning: "말 마" },
+                    { h: "耳", sound: "이", meaning: "귀 이" },
+                    { h: "東", sound: "동", meaning: "동녘 동" },
+                    { h: "風", sound: "풍", meaning: "바람 풍" }
+                ]
+            }
+        ];
+
+        let idioms = JSON.parse(localStorage.getItem('saja_idioms_list')) || defaultIdioms;
+        let currentIndex = parseInt(localStorage.getItem('saja_current_index')) || 0;
+        let bookmarks = JSON.parse(localStorage.getItem('saja_bookmarks')) || [];
+
+        // 오늘 날짜 세팅
+        const today = new Date();
+        const dateString = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
+        document.getElementById('current-date').innerText = dateString;
+
+        // 화면 렌더링 함수
+        function renderCard() {
+            if (idioms.length === 0) return;
+            if (currentIndex >= idioms.length) currentIndex = 0;
+            
+            const item = idioms[currentIndex];
+            
+            // 카드 내용 주입
+            document.getElementById('card-index').innerText = `DAY ${currentIndex + 1} / 총 ${idioms.length}선`;
+            document.getElementById('saja-hanja').innerText = item.hanja;
+            document.getElementById('saja-hangul').innerText = item.hangul;
+            document.getElementById('saja-mean-summary').innerText = `"${item.summary}"`;
+            document.getElementById('saja-definition').innerText = item.definition;
+            document.getElementById('saja-origin').innerText = item.origin;
+
+            // 한자 조각 렌더링
+            const breakdownContainer = document.getElementById('hanja-breakdown');
+            breakdownContainer.innerHTML = '';
+            if (item.chars && Array.isArray(item.chars)) {
+                item.chars.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-white p-2 rounded-xl border border-amber-100 shadow-sm';
+                    div.innerHTML = `
+                        <div class="hanja-font text-xl font-bold text-amber-900">${c.h}</div>
+                        <div class="text-xs text-stone-500 font-medium">${c.sound} (${c.meaning})</div>
+                    `;
+                    breakdownContainer.appendChild(div);
+                });
+            }
+
+            // 북마크 버튼 상태 업데이트
+            updateBookmarkIcon();
+            localStorage.setItem('saja_current_index', currentIndex);
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % idioms.length;
+            animateCardTransition();
+        }
+
+        function prevCard() {
+            currentIndex = (currentIndex - 1 + idioms.length) % idioms.length;
+            animateCardTransition();
+        }
+
+        function animateCardTransition() {
+            const container = document.getElementById('card-container');
+            container.classList.remove('animate-fade-in');
+            void container.offsetWidth; // 리플로우 유도
+            container.classList.add('animate-fade-in');
+            renderCard();
+        }
+
+        // 제미나이 API를 이용해 새로운 사자성어를 인터넷에서 검색 및 생성
+        async function fetchNewIdiom() {
+            const spinner = document.getElementById('loading-spinner');
+            const cardContainer = document.getElementById('card-container');
+            
+            spinner.classList.remove('hidden');
+            spinner.classList.add('flex');
+            cardContainer.classList.add('hidden');
+
+            const existingHanjas = idioms.map(i => i.hanja).join(", ");
+            const prompt = `인터넷과 고사성어 사전을 참고하여, 기존에 목록에 있는 사자성어(${existingHanjas})들과 중복되지 않고 널리 쓰이는 유익한 한국의 사자성어 딱 1개를 골라주세요. 반드시 아래의 JSON 형식으로만 응답해주세요. 설명과 유래는 상세하고 풍부하게 작성해주세요.
+
+{
+  "hanja": "한자 (예: 魚魯番書)",
+  "hangul": "한글 독음 (예: 어로번서)",
+  "summary": "핵심 한줄 요약 (예: 엇비슷한 글자를 잘못 혼동함)",
+  "definition": "전체 뜻 설명",
+  "origin": "유래 및 배경 이야기",
+  "chars": [
+    {"h": "첫글자한자", "sound": "음", "meaning": "뜻풀이"},
+    {"h": "둘째글자한자", "sound": "음", "meaning": "뜻풀이"},
+    {"h": "셋째글자한자", "sound": "음", "meaning": "뜻풀이"},
+    {"h": "넷째글자한자", "sound": "음", "meaning": "뜻풀이"}
+  ]
+}`;
+
+            try {
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    tools: [{ "google_search": {} }],
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                };
+
+                const apiKey = "AQ.Ab8RN6J94V3icfWHxv3qJEHE4esQ1wwzSMufx250jydfx30paQ";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const text = candidate.content.parts[0].text;
+                    const newIdiom = JSON.parse(text);
+                    
+                    idioms.push(newIdiom);
+                    localStorage.setItem('saja_idioms_list', JSON.stringify(idioms));
+                    currentIndex = idioms.length - 1;
+                    renderCard();
+                } else {
+                    alert("새로운 사자성어를 가져오지 못했습니다. 다시 시도해 주세요.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("네트워크 오류가 발생했습니다.");
+            } finally {
+                spinner.classList.remove('flex');
+                spinner.classList.add('hidden');
+                cardContainer.classList.remove('hidden');
+            }
+        }
+
+        // 북마크 토글 기능
+        function toggleBookmark() {
+            const currentItem = idioms[currentIndex];
+            const index = bookmarks.findIndex(b => b.hanja === currentItem.hanja);
+            
+            if (index > -1) {
+                bookmarks.splice(index, 1);
+            } else {
+                bookmarks.push(currentItem);
+            }
+            
+            localStorage.setItem('saja_bookmarks', JSON.stringify(bookmarks));
+            updateBookmarkIcon();
+            updateBookmarkCount();
+        }
+
+        function updateBookmarkIcon() {
+            const currentItem = idioms[currentIndex];
+            if (!currentItem) return;
+            const btn = document.getElementById('bookmark-btn');
+            const isBookmarked = bookmarks.some(b => b.hanja === currentItem.hanja);
+            
+            if (isBookmarked) {
+                btn.className = "text-amber-600 text-xl transition-colors scale-110";
+                btn.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+            } else {
+                btn.className = "text-stone-300 hover:text-amber-500 text-xl transition-colors";
+                btn.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+            }
+        }
+
+        function updateBookmarkCount() {
+            document.getElementById('bookmark-count').innerText = bookmarks.length;
+        }
+
+        // 모달 관리
+        function openModal() {
+            const listEl = document.getElementById('bookmark-list');
+            listEl.innerHTML = '';
+
+            if (bookmarks.length === 0) {
+                listEl.innerHTML = '<p class="text-center text-stone-400 py-8 text-sm">저장된 사자성어가 없습니다.</p>';
+            } else {
+                bookmarks.forEach((item, idx) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'flex justify-between items-center p-3 bg-amber-50/50 rounded-xl border border-amber-100';
+                    itemDiv.innerHTML = `
+                        <div>
+                            <span class="hanja-font font-bold text-stone-800 text-base mr-2">${item.hanja}</span>
+                            <span class="text-xs text-amber-700 font-semibold">${item.hangul}</span>
+                            <p class="text-xs text-stone-500 truncate max-w-[240px] mt-0.5">${item.summary}</p>
+                        </div>
+                        <button onclick="jumpToBookmark('${item.hanja}')" class="bg-amber-700 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-amber-800 transition">학습</button>
+                    `;
+                    listEl.appendChild(itemDiv);
+                });
+            }
+
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('flex');
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function jumpToBookmark(hanjaStr) {
+            const foundIndex = idioms.findIndex(i => i.hanja === hanjaStr);
+            if (foundIndex !== -1) {
+                currentIndex = foundIndex;
+                animateCardTransition();
+            }
+            closeModal();
+        }
+
+        // 전체 학습 일정 모달 관련 함수
+        function openScheduleModal() {
+            const listEl = document.getElementById('schedule-list');
+            listEl.innerHTML = '';
+
+            idioms.forEach((item, idx) => {
+                const isCurrent = idx === currentIndex;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `flex justify-between items-center p-3 rounded-xl border transition ${isCurrent ? 'bg-amber-100/70 border-amber-300 font-semibold' : 'bg-stone-50/70 border-stone-100 hover:bg-amber-50/40'}`;
+                
+                const targetDate = new Date();
+                targetDate.setDate(today.getDate() + idx);
+                const dateStrFormatted = `${targetDate.getMonth() + 1}월 ${targetDate.getDate()}일`;
+
+                itemDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xs font-bold bg-amber-200 text-amber-900 px-2.5 py-1 rounded-lg">DAY ${idx + 1}</span>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="hanja-font font-bold text-stone-900 text-base">${item.hanja}</span>
+                                <span class="text-xs text-amber-700 font-semibold">(${item.hangul})</span>
+                            </div>
+                            <p class="text-xs text-stone-500 mt-0.5">${item.summary}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-stone-400 hidden sm:inline">${dateStrFormatted}</span>
+                        <button onclick="jumpToSchedule(${idx})" class="bg-amber-700 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-amber-800 transition">선택</button>
+                    </div>
+                `;
+                listEl.appendChild(itemDiv);
+            });
+
+            document.getElementById('schedule-modal').classList.remove('hidden');
+            document.getElementById('schedule-modal').classList.add('flex');
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('schedule-modal').classList.remove('flex');
+            document.getElementById('schedule-modal').classList.add('hidden');
+        }
+
+        function jumpToSchedule(idx) {
+            currentIndex = idx;
+            animateCardTransition();
+            closeScheduleModal();
+        }
+
+        // 초기 실행
+        renderCard();
+        updateBookmarkCount();
+    </script>
+</body>
+</html>
